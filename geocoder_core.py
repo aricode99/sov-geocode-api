@@ -64,7 +64,7 @@ def load_zip_reference(path_or_buffer) -> dict:
     dict for display in the app."""
     global ZIP_TO_REGION, STATE_NAME_TO_CODE
     zipref = pd.read_excel(path_or_buffer)
-    zipref["zip5"] = zipref["Zipcosde"].astype(str).str.zfill(5)
+    zipref.loc[:, "zip5"] = zipref["Zipcosde"].astype(str).str.zfill(5)
     ZIP_TO_REGION = zipref.set_index("zip5")[["State Code", "County"]].to_dict("index")
     STATE_NAME_TO_CODE = dict(zip(zipref["State Name"].str.upper(), zipref["State Code"]))
     return {"zip_count": len(ZIP_TO_REGION), "state_count": len(STATE_NAME_TO_CODE)}
