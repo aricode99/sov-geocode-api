@@ -1,0 +1,47 @@
+name: Test and Deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+
+      - name: Run tests
+        run: pytest tests/ -v
+
+  deploy:
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Render deploy
+        run: |
+          curl -f -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
+
+      - name: Wait for deploy to come up healthy
+        run: |
+          for i in $(seq 1 30); do
+            status=$(curl -s -o /dev/null -w "%{http_code}" "${{ secrets.API_HEALTH_URL }}" || echo "000")
+            if [ "$status" = "200" ]; then
+              echo "Deploy healthy after $i checks."
+              exit 0
+            fi
+            echo "Attempt $i: status $status, retrying in 10s..."
+            sleep 10
+          done
+          echo "Deploy did not become healthy in time."
+          exit 1
