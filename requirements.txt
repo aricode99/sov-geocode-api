@@ -1,0 +1,7 @@
+fastapi==0.115.0
+uvicorn[standard]==0.32.0
+pandas==2.2.3
+numpy==1.26.4
+requests==2.32.3
+usaddress==0.5.10
+openpyxl==3.1.5

@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: sov-geocode-api
+    runtime: python
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn main:app --host 0.0.0.0 --port $PORT"
+    healthCheckPath: /health
+    envVars:
+      - key: GEOCODE_API_KEY
+        sync: false          # set manually in Render's dashboard, never committed to git
+      - key: NOMINATIM_CONTACT_EMAIL
+        sync: false
+      - key: MIN_REQUEST_INTERVAL_SECS
+        value: "1.1"
+      - key: CACHE_TTL_SECONDS
+        value: "7776000"      # 90 days
+    autoDeploy: false          # deploys are triggered by the GitHub Actions workflow instead,
+                                # so a deploy only happens after tests pass -- see .github/workflows/deploy.yml
