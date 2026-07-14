@@ -143,6 +143,17 @@ def _check_api_key(key: str):
         raise HTTPException(status_code=401, detail="Invalid or missing API key")
 
 
+@app.get("/")
+def root():
+    """Friendly landing response -- avoids a confusing 404 when Render's
+    own platform (or a person) hits the bare URL directly."""
+    return {
+        "service": "SOV Address Geocoder API",
+        "endpoints": ["/health", "/geocode?address=...&key=...",
+                      "/batch_geocode?addresses=...&key=..."],
+    }
+
+
 @app.get("/health")
 def health():
     """Unauthenticated health check -- for the hosting platform's uptime probe."""
